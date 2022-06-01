@@ -4,6 +4,8 @@ import { authenticator } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/login");
 
-export let action: ActionFunction = ({ request }) => {
-  return authenticator.authenticate("duende", request);
+export let action: ActionFunction = async ({ request }) => {
+  let user = await authenticator.authenticate("duende", request);
+  // console.log("it's a user", {user})
+  return user;
 };

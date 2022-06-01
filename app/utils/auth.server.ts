@@ -1,6 +1,6 @@
 import { Authenticator } from "remix-auth";
 import { DuendeStrategy } from "./duende-strategy";
-import { sessionStorage } from "~/session.server";
+import { createUserSession, sessionStorage } from "~/session.server";
 
 export const authenticator = new Authenticator<any>(sessionStorage);
 
@@ -29,6 +29,10 @@ let duendeStrategy = new DuendeStrategy(
   async ({ accessToken, refreshToken, extraParams, profile }) => {
     console.log({ accessToken, refreshToken, extraParams, profile });
     // Get the user data from your DB or API using the tokens and profile
+
+    console.log(`displayName is ${profile.displayName}`)
+    // createUserSession(profile.emails[0].value ?? "no email", "/");
+
     return { email: profile.emails.at(0) };
   }
 );
