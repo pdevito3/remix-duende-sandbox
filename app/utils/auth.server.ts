@@ -23,13 +23,13 @@ let duendeStrategy = new DuendeStrategy(
     domain: "localhost:3385",
     codeChallenge: "NxYpCwEgyKDk5bmzIj2Pz-5YtmybegRpEZmoqtEEY4E",
     codeChallengeMethod: "S256",
-    scope: "openid profile role recipe_management",
+    scope: "recipe_management openid profile", // <- role breaks this
     responseType: "code",
   },
   async ({ accessToken, refreshToken, extraParams, profile }) => {
     console.log({ accessToken, refreshToken, extraParams, profile });
     // Get the user data from your DB or API using the tokens and profile
-    return { email: profile.emails[0].value };
+    return { email: profile.emails.at(0) };
   }
 );
 

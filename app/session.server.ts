@@ -4,6 +4,7 @@ import { createCookieSessionStorage } from "@remix-run/node"; // or "@remix-run/
 
 export let sessionStorage = createCookieSessionStorage({
   cookie: {
+    // name: "__Host-remix-session",
     name: "_session",
     sameSite: "lax",
     path: "/",
