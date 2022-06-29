@@ -1,6 +1,6 @@
 import { Authenticator } from "remix-auth";
-import { DuendeStrategy } from "./duende-strategy";
 import { createUserSession, sessionStorage } from "~/session.server";
+import { KeycloakStrategy } from './keycloak-strategy';
 
 export const authenticator = new Authenticator<any>(sessionStorage);
 
@@ -11,7 +11,7 @@ export const authenticator = new Authenticator<any>(sessionStorage);
 // if (!process.env.AUTH0_CLIENT_SECRET)
 //   throw new Error("AUTH0_CLIENT_SECRET is not set");
 
-let duendeStrategy = new DuendeStrategy(
+let keycloakStrategy = new KeycloakStrategy(
   {
     // callbackURL: process.env.AUTH0_CALLBACK_URL,
     // clientID: process.env.AUTH0_CLIENT_ID,
@@ -19,22 +19,20 @@ let duendeStrategy = new DuendeStrategy(
     // domain: process.env.AUTH0_DOMAIN,
     callbackURL: "http://localhost:6522/auth/callback",
     clientID: "recipe_management.remix",
-    clientSecret: "secret",
-    domain: "localhost:3385",
-    codeChallenge: "NxYpCwEgyKDk5bmzIj2Pz-5YtmybegRpEZmoqtEEY4E",
-    codeChallengeMethod: "S256",
-    scope: "recipe_management openid profile", // <- role breaks this
-    responseType: "code",
+    clientSecret: "TdqU6nYehzqgiko99qVpnolDls0iL0CO",
+    domain: "localhost:3385/auth/realms/My%20Realm",
+    scope: "recipe_management openid profile", // <- role breaks this 🤔
   },
   async ({ accessToken, refreshToken, extraParams, profile }) => {
     console.log({ accessToken, refreshToken, extraParams, profile });
     // Get the user data from your DB or API using the tokens and profile
 
     console.log(`displayName is ${profile.displayName}`)
-    // createUserSession(profile.emails[0].value ?? "no email", "/");
+    console.log(`id is ${profile.id}`)
+    createUserSession(profile, "/");
 
     return { email: profile.emails.at(0) };
   }
 );
 
-authenticator.use(duendeStrategy);
+authenticator.use(keycloakStrategy);

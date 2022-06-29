@@ -1,4 +1,5 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node"; // or "@remix-run/cloudflare"
+import type { KeycloakProfile } from "./utils/keycloak-strategy";
 
 // if (!process.env.SESSION_SECRET) throw new Error("SESSION_SECRET is not set");
 
@@ -15,9 +16,16 @@ export let sessionStorage = createCookieSessionStorage({
   },
 });
 
-export async function createUserSession(email: string, redirectTo: string) {
+export async function createUserSession(profile: KeycloakProfile, redirectTo: string) {
   const session = await sessionStorage.getSession();
-  session.set("email", email);
+
+  console.log("creating user session");
+  console.log(`profile.id is ${profile.id}`);
+
+  session.set("userId", profile.id);
+  session.set("displayName", profile.displayName);
+  session.set("profile", profile);
+
   return redirect(redirectTo, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
@@ -34,6 +42,13 @@ export async function getUserId(request: Request) {
   const userId = session.get("userId");
   if (!userId || typeof userId !== "string") return null;
   return userId;
+}
+
+export async function getUserDisplayName(request: Request) {
+  const session = await getUserSession(request);
+  const displayName = session.get("displayName");
+  if (!displayName || typeof displayName !== "string") return null;
+  return displayName;
 }
 
 export async function requireUserId(
@@ -54,16 +69,6 @@ export async function getUser(request: Request) {
   if (typeof userId !== "string") {
     return null;
   }
-
-  // try {
-  //   const user = await db.user.findUnique({
-  //     where: { id: userId },
-  //     select: { id: true, username: true },
-  //   });
-  //   return user;
-  // } catch {
-  //   throw logout(request);
-  // }
 }
 
 export let { getSession, commitSession, destroySession } = sessionStorage;

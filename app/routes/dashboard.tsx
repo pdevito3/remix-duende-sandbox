@@ -1,35 +1,32 @@
-import { Link } from "@remix-run/react";
-import { getSession } from "~/session.server";
-import { authenticator } from "~/utils/auth.server";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { getUserDisplayName, getUserId } from "~/session.server";
 
-// export async function loader({ request }: any) {
-//   const session = await getSession();
+type LoaderData = {
+  userName: string | null;
+};
 
-// console.log(session.data)
+export async function loader({ request }: any) {
+  // const userId = await getUserId(request);
 
-//   // if (session.has("userId")) {
-//   //   // Redirect to the home page if they are already signed in.
-//   //   return redirect("/");
-//   // }
+  // console.log({ userId });
+  const myName = await getUserDisplayName(request);
+  console.log({ myName });
 
-//   // const data = { error: session.get("error") };
+  const data: LoaderData = {
+    userName: myName,
+  };
 
-// return null;
-
-//   // return json(data, {
-//   //   headers: {
-//   //     "Set-Cookie": await commitSession(session),
-//   //   },
-//   // });
-// }
+  return json(data);
+}
 
 export default function Dashboard() {
-  // authenticator.isAuthenticated();
-
+  const data = useLoaderData<LoaderData>();
+  
   return (
     <div className="p-5">
       {/* <a href="https://localhost:3385/account/logout">Logout</a> */}
-      <p>Hi, you!</p>
+      <p>Hi, {data.userName}!</p>
       <Link to="/logout">Logout</Link>
     </div>
   )
